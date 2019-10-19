@@ -11,9 +11,8 @@ BUFFER_SIZE = 4096
 # tmp - Skin Temperature
 # bat - Device Battery
 # tag - Tag taken from the device
-STREAMS = ['acc', 'bvp', 'gsr', 'ibi', 'tmp', 'bat', 'tag']
-STREAM_IDS = ['E4_Acc', 'E4_Bvp', 'E4_Gsr', 'E4_Ibi', 'E4_Hr', 'E4_Temperature', 'E4_Battery', 'E4_Tag']
-
+STREAMS = ['acc', 'bvp', 'gsr', 'tmp', 'ibi', 'bat', 'tag']
+STREAM_IDS = ['E4_Acc', 'E4_Bvp', 'E4_Gsr', 'E4_Temperature', 'E4_Ibi', 'E4_Hr', 'E4_Battery', 'E4_Tag']
 TAGS = []
 
 
@@ -144,10 +143,32 @@ def process_incoming_msgs():
                         set_state(STATES.READY_TO_SUBSCRIBE__)
         # Handle data stream
         elif STATE == STATES.STREAMING__:
-            tag, content = cmd.split(' ', maxsplit=1)
-            if tag not in TAGS:
-                TAGS.append(tag)
-                print(TAGS)
+            process_data_stream(cmd)
+
+
+def process_data_stream(cmd: str):
+    d = next(filter(lambda x: cmd.startswith(x), STREAM_IDS), None)
+    if d is not None:
+        # data stream. handle accordingly
+        if d == 'E4_Acc':
+            t, x, y, z = cmd.split(' ')[1:]
+        elif d == 'E4_Bvp':
+            t, v = cmd.split(' ')[1:]
+        elif d == 'E4_Gsr':
+            t, v = cmd.split(' ')[1:]
+        elif d == 'E4_Temperature':
+            t, v = cmd.split(' ')[1:]
+        elif d == 'E4_Ibi':
+            t, v = cmd.split(' ')[1:]
+        elif d == 'E4_Hr':
+            t, v = cmd.split(' ')[1:]
+        elif d == 'E4_Battery':
+            t, v = cmd.split(' ')[1:]
+        elif d == 'E4_Tag':
+            t = cmd.split(' ')[1]
+    else:
+        # some other message
+        print('Unknown message: %s' % cmd)
 
 
 def handle_outgoing_msgs():
