@@ -150,22 +150,25 @@ def process_data_stream(cmd: str):
     d = next(filter(lambda x: cmd.startswith(x), STREAM_IDS), None)
     if d is not None:
         # data stream. handle accordingly
-        if d == 'E4_Acc':
-            t, x, y, z = cmd.split(' ')[1:]
-        elif d == 'E4_Bvp':
-            t, v = cmd.split(' ')[1:]
-        elif d == 'E4_Gsr':
-            t, v = cmd.split(' ')[1:]
-        elif d == 'E4_Temperature':
-            t, v = cmd.split(' ')[1:]
-        elif d == 'E4_Ibi':
-            t, v = cmd.split(' ')[1:]
-        elif d == 'E4_Hr':
-            t, v = cmd.split(' ')[1:]
-        elif d == 'E4_Battery':
-            t, v = cmd.split(' ')[1:]
-        elif d == 'E4_Tag':
-            t = cmd.split(' ')[1]
+        try:
+            if d == 'E4_Acc':
+                t, x, y, z = cmd.split(' ')[1:]
+            elif d == 'E4_Bvp':
+                t, v = cmd.split(' ')[1:]
+            elif d == 'E4_Gsr':
+                t, v = cmd.split(' ')[1:]
+            elif d == 'E4_Temperature':
+                t, v = cmd.split(' ')[1:]
+            elif d == 'E4_Ibi':
+                t, v = cmd.split(' ')[1:]
+            elif d == 'E4_Hr':
+                t, v = cmd.split(' ')[1:]
+            elif d == 'E4_Battery':
+                t, v = cmd.split(' ')[1:]
+            elif d == 'E4_Tag':
+                t = cmd.split(' ')[1]
+        except Exception as e:
+            print('Error: ', e)
     else:
         # some other message
         print('Unknown message: %s' % cmd)
