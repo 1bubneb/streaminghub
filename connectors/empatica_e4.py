@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 import codecs
 import socket
+import numpy as np
 
 # constants
+from connectors.lsl_streaming import create_outlet
+
 BUFFER_SIZE = 4096
 # acc - 3 - axis acceleration
 # bvp - Blood Volume Pulse
@@ -35,6 +38,62 @@ class COMMANDS:
     DEVICE_SUBSCRIBE__ = 'device_subscribe'
     PAUSE__ = "pause"
 
+
+channel_description = {
+    'E4_Acc_x': {
+        'unit': 'g',
+        'type': 'acceleration',
+        'freq': '32'
+    },
+    'E4_Acc_y': {
+        'unit': 'g',
+        'type': 'acceleration',
+        'freq': '32'
+    },
+    'E4_Acc_z': {
+        'unit': 'g',
+        'type': 'acceleration',
+        'freq': '32'
+    },
+    'E4_Bvp': {
+        'unit': '',
+        'type': '',
+        'freq': '64'
+    },
+    'E4_Ibi': {
+        'unit': 'ms',
+        'type': 'interval',
+        'freq': 'N/A'
+    },
+    'E4_Gsr': {
+        'unit': '',
+        'type': '',
+        'freq': '4'
+    },
+    'E4_Temperature': {
+        'unit': '',
+        'type': '',
+        'freq': '4'
+    },
+    'E4_Hr': {
+        'unit': '',
+        'type': '',
+        'freq': 'N/A'
+
+    },
+    'E4_Battery': {
+        'unit': '',
+        'type': '',
+        'freq': '64'
+    },
+    'E4_Tag': {
+        'unit': '',
+        'type': '',
+        'freq': '64'
+    }
+}
+
+OUTLET = create_outlet('Empatica_E4', 'wristband', channel_description, 'Empatica', 'E4', '1234567890')
 
 # State
 STATE = STATES.NEW__
@@ -152,21 +211,38 @@ def process_data_stream(cmd: str):
         # data stream. handle accordingly
         try:
             if d == 'E4_Acc':
-                t, x, y, z = cmd.split(' ')[1:]
+                t, x, y, z = [float(n) for n in cmd.split(' ')[1:]]
+                if OUTLET.have_consumers():
+                    OUTLET.push_sample([x, y, z, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan], t)
             elif d == 'E4_Bvp':
-                t, v = cmd.split(' ')[1:]
+                t, v = [float(n) for n in cmd.split(' ')[1:]]
+                if OUTLET.have_consumers():
+                    OUTLET.push_sample([np.nan, np.nan, np.nan, v, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan], t)
             elif d == 'E4_Gsr':
-                t, v = cmd.split(' ')[1:]
+                t, v = [float(n) for n in cmd.split(' ')[1:]]
+                if OUTLET.have_consumers():
+                    OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, np.nan, v, np.nan, np.nan, np.nan, np.nan], t)
             elif d == 'E4_Temperature':
-                t, v = cmd.split(' ')[1:]
+                t, v = [float(n) for n in cmd.split(' ')[1:]]
+                if OUTLET.have_consumers():
+                    OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, v, np.nan, np.nan, np.nan], t)
             elif d == 'E4_Ibi':
-                t, v = cmd.split(' ')[1:]
+                t, v = [float(n) for n in cmd.split(' ')[1:]]
+                if OUTLET.have_consumers():
+                    OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, v, np.nan, np.nan, np.nan, np.nan, np.nan], t)
             elif d == 'E4_Hr':
-                t, v = cmd.split(' ')[1:]
+                t, v = [float(n) for n in cmd.split(' ')[1:]]
+                if OUTLET.have_consumers():
+                    OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, v, np.nan, np.nan], t)
             elif d == 'E4_Battery':
-                t, v = cmd.split(' ')[1:]
+                t, v = [float(n) for n in cmd.split(' ')[1:]]
+                if OUTLET.have_consumers():
+                    OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, v, np.nan], t)
             elif d == 'E4_Tag':
-                t = cmd.split(' ')[1]
+                t = [float(n) for n in cmd.split(' ')[1]]
+                if OUTLET.have_consumers():
+                    OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, t], t)
+            print('.', end='', flush=True)
         except Exception as e:
             print('Error: ', e)
     else:
