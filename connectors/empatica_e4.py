@@ -176,10 +176,10 @@ def process_incoming_msgs():
                     print('Error pausing streaming: %s' % cmd)
                     exit(1)
                 elif status == "ON":
-                    print('Streaming paused')
+                    print('Streaming on hold')
                     set_state(STATES.READY_TO_SUBSCRIBE__)
                 elif status == "OFF":
-                    print('Streaming resumed')
+                    print('Streaming started')
                     set_state(STATES.STREAMING__)
             # DEVICE SUBSCRIBE response
             elif cmd[:i] == COMMANDS.DEVICE_SUBSCRIBE__:
