@@ -3,7 +3,7 @@ import codecs
 import socket
 
 # constants
-BUFFER_SIZE = 1024
+BUFFER_SIZE = 4096
 # acc - 3 - axis acceleration
 # bvp - Blood Volume Pulse
 # gsr - Galvanic Skin Response
@@ -12,10 +12,9 @@ BUFFER_SIZE = 1024
 # bat - Device Battery
 # tag - Tag taken from the device
 STREAMS = ['acc', 'bvp', 'gsr', 'ibi', 'tmp', 'bat', 'tag']
+STREAM_IDS = ['E4_Acc', 'E4_Bvp', 'E4_Gsr', 'E4_Ibi', 'E4_Hr', 'E4_Temperature', 'E4_Battery', 'E4_Tag']
 
-# Create socket connection
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(("10.211.55.3", 28000))
+TAGS = []
 
 
 # states
@@ -144,12 +143,14 @@ def process_incoming_msgs():
                     else:
                         set_state(STATES.READY_TO_SUBSCRIBE__)
         # Handle data stream
-        else:
-            print(cmd)
+        elif STATE == STATES.STREAMING__:
+            tag, content = cmd.split(' ', maxsplit=1)
+            if tag not in TAGS:
+                TAGS.append(tag)
+                print(TAGS)
 
 
-while True:
-    # socket client loop
+def handle_outgoing_msgs():
     if STATE == STATES.NEW__:
         # request devices list
         print('Getting list of devices...')
@@ -179,8 +180,13 @@ while True:
         print('Requesting data')
         s.send(msg("%s OFF" % COMMANDS.PAUSE__))
         set_state(STATES.STREAMING__)
-    process_incoming_msgs()
 
-while True:
-    # socket server loop
-    continue
+
+if __name__ == '__main__':
+    # Create socket connection
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect(("10.211.55.3", 28000))
+    # event loop
+    while True:
+        handle_outgoing_msgs()
+        process_incoming_msgs()
