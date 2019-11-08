@@ -4,7 +4,7 @@ import socket
 import numpy as np
 
 # constants
-from connectors.lsl_streaming import create_outlet
+from connectors.lsl_outlet import create_outlet
 
 BUFFER_SIZE = 4096
 # acc - 3 - axis acceleration
