@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-from pylsl import StreamInlet, resolve_stream
+from pylsl import StreamInlet, resolve_byprop
+
 
 # first resolve an EEG stream on the lab network
 print("looking for an Empatica E4 stream...")
-streams = resolve_stream('type', 'wristband')
+streams = resolve_byprop('type', 'wristband')
 
 # create a new inlet to read from the stream
 inlet = StreamInlet(streams[0])
