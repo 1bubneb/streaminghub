@@ -4,7 +4,7 @@ import socket
 import numpy as np
 
 # constants
-from connectors.lsl_outlet import create_outlet
+from lsl_outlet import create_outlet
 
 BUFFER_SIZE = 4096
 # acc - 3 - axis acceleration
@@ -99,6 +99,61 @@ OUTLET = create_outlet('Empatica_E4', 'wristband', channel_description, 'Empatic
 STATE = STATES.NEW__
 DEVICE = None
 stream_i = 0
+
+class DataStream:
+
+    sample = []
+
+    # init sample array with NaN values
+    for i in range(0,10):
+        sample.append(np.nan)
+
+    def process_data_stream(cmd: str):
+        d = next(filter(lambda x: cmd.startswith(x), STREAM_IDS), None)
+        if d is not None:
+            # data stream. handle accordingly
+            try:
+                if d == 'E4_Acc':
+                    t, x, y, z = [float(n) for n in cmd.split(' ')[1:]]
+                    if OUTLET.have_consumers():
+                        OUTLET.push_sample([x, y, z, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan], t)
+                elif d == 'E4_Bvp':
+                    t, v = [float(n) for n in cmd.split(' ')[1:]]
+                    if OUTLET.have_consumers():
+                        OUTLET.push_sample([np.nan, np.nan, np.nan, v, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan], t)
+                elif d == 'E4_Gsr':
+                    t, v = [float(n) for n in cmd.split(' ')[1:]]
+                    if OUTLET.have_consumers():
+                        OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, np.nan, v, np.nan, np.nan, np.nan, np.nan], t)
+                elif d == 'E4_Temperature':
+                    t, v = [float(n) for n in cmd.split(' ')[1:]]
+                    if OUTLET.have_consumers():
+                        OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, v, np.nan, np.nan, np.nan], t)
+                elif d == 'E4_Ibi':
+                    t, v = [float(n) for n in cmd.split(' ')[1:]]
+                    if OUTLET.have_consumers():
+                        OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, v, np.nan, np.nan, np.nan, np.nan, np.nan], t)
+                elif d == 'E4_Hr':
+                    t, v = [float(n) for n in cmd.split(' ')[1:]]
+                    if OUTLET.have_consumers():
+                        OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, v, np.nan, np.nan], t)
+                elif d == 'E4_Battery':
+                    t, v = [float(n) for n in cmd.split(' ')[1:]]
+                    if OUTLET.have_consumers():
+                        OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, v, np.nan], t)
+                elif d == 'E4_Tag':
+                    t = [float(n) for n in cmd.split(' ')[1]]
+                    if OUTLET.have_consumers():
+                        OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, t], t)
+                print('.', end='', flush=True)
+            except Exception as e:
+                print('Error: ', e)
+        else:
+            # some other message
+            print('Unknown message: %s' % cmd)
+
+
+DS = DataStream
 
 
 def msg(s_: str) -> bytes:
@@ -204,50 +259,6 @@ def process_incoming_msgs():
         elif STATE == STATES.STREAMING__:
             process_data_stream(cmd)
 
-
-def process_data_stream(cmd: str):
-    d = next(filter(lambda x: cmd.startswith(x), STREAM_IDS), None)
-    if d is not None:
-        # data stream. handle accordingly
-        try:
-            if d == 'E4_Acc':
-                t, x, y, z = [float(n) for n in cmd.split(' ')[1:]]
-                if OUTLET.have_consumers():
-                    OUTLET.push_sample([x, y, z, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan], t)
-            elif d == 'E4_Bvp':
-                t, v = [float(n) for n in cmd.split(' ')[1:]]
-                if OUTLET.have_consumers():
-                    OUTLET.push_sample([np.nan, np.nan, np.nan, v, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan], t)
-            elif d == 'E4_Gsr':
-                t, v = [float(n) for n in cmd.split(' ')[1:]]
-                if OUTLET.have_consumers():
-                    OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, np.nan, v, np.nan, np.nan, np.nan, np.nan], t)
-            elif d == 'E4_Temperature':
-                t, v = [float(n) for n in cmd.split(' ')[1:]]
-                if OUTLET.have_consumers():
-                    OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, v, np.nan, np.nan, np.nan], t)
-            elif d == 'E4_Ibi':
-                t, v = [float(n) for n in cmd.split(' ')[1:]]
-                if OUTLET.have_consumers():
-                    OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, v, np.nan, np.nan, np.nan, np.nan, np.nan], t)
-            elif d == 'E4_Hr':
-                t, v = [float(n) for n in cmd.split(' ')[1:]]
-                if OUTLET.have_consumers():
-                    OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, v, np.nan, np.nan], t)
-            elif d == 'E4_Battery':
-                t, v = [float(n) for n in cmd.split(' ')[1:]]
-                if OUTLET.have_consumers():
-                    OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, v, np.nan], t)
-            elif d == 'E4_Tag':
-                t = [float(n) for n in cmd.split(' ')[1]]
-                if OUTLET.have_consumers():
-                    OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, t], t)
-            print('.', end='', flush=True)
-        except Exception as e:
-            print('Error: ', e)
-    else:
-        # some other message
-        print('Unknown message: %s' % cmd)
 
 
 def handle_outgoing_msgs():
