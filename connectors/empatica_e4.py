@@ -108,6 +108,7 @@ class DataStream:
     for i in range(0,10):
         sample.append(np.nan)
 
+
     def process_data_stream(cmd: str):
         d = next(filter(lambda x: cmd.startswith(x), STREAM_IDS), None)
         if d is not None:
@@ -116,35 +117,43 @@ class DataStream:
                 if d == 'E4_Acc':
                     t, x, y, z = [float(n) for n in cmd.split(' ')[1:]]
                     if OUTLET.have_consumers():
-                        OUTLET.push_sample([x, y, z, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan], t)
+                        sample[0:3] = [x, y, z]
+                        OUTLET.push_sample(sample, t)
                 elif d == 'E4_Bvp':
                     t, v = [float(n) for n in cmd.split(' ')[1:]]
                     if OUTLET.have_consumers():
-                        OUTLET.push_sample([np.nan, np.nan, np.nan, v, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan], t)
+                        sample[3] = v
+                        OUTLET.push_sample(sample, t)
                 elif d == 'E4_Gsr':
                     t, v = [float(n) for n in cmd.split(' ')[1:]]
                     if OUTLET.have_consumers():
-                        OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, np.nan, v, np.nan, np.nan, np.nan, np.nan], t)
+                        sample[4] = v
+                        OUTLET.push_sample(sample, t)
                 elif d == 'E4_Temperature':
                     t, v = [float(n) for n in cmd.split(' ')[1:]]
                     if OUTLET.have_consumers():
-                        OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, v, np.nan, np.nan, np.nan], t)
+                        sample[5] = v
+                        OUTLET.push_sample(sample, t)
                 elif d == 'E4_Ibi':
                     t, v = [float(n) for n in cmd.split(' ')[1:]]
                     if OUTLET.have_consumers():
-                        OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, v, np.nan, np.nan, np.nan, np.nan, np.nan], t)
+                        sample[6] = v
+                        OUTLET.push_sample(sample, t)
                 elif d == 'E4_Hr':
                     t, v = [float(n) for n in cmd.split(' ')[1:]]
                     if OUTLET.have_consumers():
-                        OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, v, np.nan, np.nan], t)
+                        sample[7] = v
+                        OUTLET.push_sample(sample, t)
                 elif d == 'E4_Battery':
                     t, v = [float(n) for n in cmd.split(' ')[1:]]
                     if OUTLET.have_consumers():
-                        OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, v, np.nan], t)
+                        sample[8] = v
+                        OUTLET.push_sample(sample, t)
                 elif d == 'E4_Tag':
                     t = [float(n) for n in cmd.split(' ')[1]]
                     if OUTLET.have_consumers():
-                        OUTLET.push_sample([np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, t], t)
+                        sample[9] = v
+                        OUTLET.push_sample(sample, t)
                 print('.', end='', flush=True)
             except Exception as e:
                 print('Error: ', e)
